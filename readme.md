@@ -7,8 +7,8 @@ This project includes a machine learning model for training and testing, along w
 
 ### 1⃣ Clone the Repository  
 ```bash
-git clone <https://github.com/ujjawalgarg7/STM-SmartWatch>
-cd <STM-SmartWatch>
+git clone https://github.com/ujjawalgarg7/STM-SmartWatch
+cd STM-SmartWatch
 ```
 
 ### 2⃣ Set Up a Virtual Environment  
@@ -47,8 +47,13 @@ To train and test the model, download the datasets:
 - **💜 Training Set:** [Download here](<https://drive.google.com/drive/folders/1zgQ8bCxi7Vu5CAe5nLPFCIIYGHEF8mKz?usp=drive_link>)  
 - **💜 Testing Set:** [Download here](<https://drive.google.com/drive/folders/1GNyrwcUovqKaJI0rAvbtFfeQXYgGqHde?usp=drive_link>)  
 
-After downloading, place the datasets in the root directory:  
+After downloading, place the datasets in the appropriate directories:
 
+```bash
+mkdir Dataset Testing
+mv <downloaded-training-file> Dataset/
+mv <downloaded-testing-file> Testing/
+```
 
 ---
 
