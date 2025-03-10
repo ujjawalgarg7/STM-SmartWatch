@@ -4,7 +4,8 @@ import torch
 import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import StandardScaler
-
+from collections import Counter
+from mail import sendMail
 app = Flask(__name__)
 
 # Define LSTM model (must match the trained model's structure)
@@ -80,7 +81,33 @@ def predict():
     # Make predictions
     predictions = predict_activity(file)
 
-    return jsonify({'prediction': predictions[:20]})  # Sending first 20 predictions for reference
+    # Find the most frequent prediction
+    if predictions:
+        most_common_prediction = Counter(predictions).most_common(1)[0][0]
+
+        # Call sendMail if the prediction is 'gesture'
+        if most_common_prediction == 'gesture':
+            try:
+                sendMail('ujjawalgarg7@gmail.com','GESTURE')
+                print("Email sent because gesture was detected")
+            except Exception as e:
+                print(f"Error sending email: {e}")
+        elif most_common_prediction == 'falling_while_walking':
+            try:
+                sendMail('ujjawalgarg7@gmail.com','FALLEN')
+                print("Email sent because gesture was detected")
+            except Exception as e:
+                print(f"Error sending email: {e}")
+        elif most_common_prediction == 'falling_while_walking':
+            try:
+                sendMail('ujjawalgarg7@gmail.com','FALLEN')
+                print("Email sent because gesture was detected")
+            except Exception as e:
+                print(f"Error sending email: {e}")
+
+        return jsonify({'prediction': most_common_prediction})
+    else:
+        return jsonify({'prediction': "No prediction available"})
 
 if __name__ == '__main__':
     app.run(debug=True)

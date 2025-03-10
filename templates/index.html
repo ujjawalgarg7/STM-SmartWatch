@@ -16,12 +16,11 @@
 
     <h1>Activity Recognition</h1>
     <div class="container">
-        <h3>Predicted Activities:</h3>
-        <ul id="activityList"></ul>
+        <h3>Predicted Activity:</h3>
+        <p id="result"></p>
         <div class="upload-box" onclick="document.getElementById('fileInput').click()">Drag & Drop CSV</div>
         <input type="file" id="fileInput" style="display: none;" accept=".csv">
         <button onclick="uploadFile()">Upload</button>
-        <p id="result"></p>
     </div>
 
     <script>
@@ -36,14 +35,8 @@
             let response = await fetch('/predict', { method: "POST", body: formData });
             let data = await response.json();
             
-            let list = document.getElementById("activityList");
-            list.innerHTML = "";
             if (data.prediction) {
-                data.prediction.forEach(activity => {
-                    let li = document.createElement("li");
-                    li.textContent = activity;
-                    list.appendChild(li);
-                });
+                document.getElementById("result").innerText = data.prediction;
             } else {
                 document.getElementById("result").innerText = "Error processing file!";
             }
