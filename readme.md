@@ -2,7 +2,7 @@
 
 ---
 
-# 🚀 STM - Smart Watch  
+# 🚀 STM - Smart Watch  - Vigilanté
 
 ## 📌 Overview  
 This project includes a machine learning model for training and testing, along with additional utilities for handling location-based data, email notifications, **and a Flask web application for real-time activity recognition using a trained model.**  
@@ -109,6 +109,12 @@ STM-SmartWatch/
 │── templates/               # Contains HTML templates for the Flask app
 │   └── index.html           # Main page of the web application
 ```
+
+---
+
+## 🎥 Demo
+
+Watch the video demonstration here: [Demo Video](https://drive.google.com/drive/folders/1812owPG17WSKjXGnflAkNC04d0W9a9et?usp=sharing)
 
 ---
 
