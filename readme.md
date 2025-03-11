@@ -1,4 +1,4 @@
-Here’s a corrected and improved version of your README with formatting fixes and minor refinements:  
+Here's your updated README with the provided document link added:  
 
 ---
 
@@ -117,6 +117,12 @@ Once you're done working, deactivate the virtual environment:
 ```bash
 deactivate
 ```
+
+---
+
+## 📑 Documentation  
+For more details about this project, refer to the official documentation:  
+📄 [Project Documentation](https://docs.google.com/document/d/1YJnSwwzxqNGQASOm7sl3X6ATFk9G1omzPLYVKoCoT3c/edit?usp=sharing)  
 
 ---
 
