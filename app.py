@@ -28,7 +28,7 @@ num_classes = 5  # Update if different
 
 # Load trained model
 model = ActivityLSTM(input_size, hidden_size, num_classes)
-model.load_state_dict(torch.load('activity_recognition_lstm.pth'))
+model.load_state_dict(torch.load('activity_recognition_lstm_finetuned.pth'))
 model.eval()  # Set to evaluation mode
 
 # Label mapping
