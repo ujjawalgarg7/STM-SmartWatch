@@ -5,21 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activity Recognition</title>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; background: #111; color: white; }
-        .container { max-width: 500px; margin: auto; padding: 20px; background: #222; border-radius: 10px; }
-        .upload-box { padding: 10px; border: 2px dashed white; cursor: pointer; margin-bottom: 10px; }
-        button { margin-top: 10px; padding: 10px 20px; cursor: pointer; }
-        ul { text-align: left; margin-top: 10px; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #000;
+            color: white;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #00eaff;
+            text-shadow: 0 0 10px rgba(0, 234, 255, 0.8);
+        }
+        .watch-container {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #333, #000);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            border: 5px solid #fff;
+        }
+        h1 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .upload-box {
+            padding: 10px;
+            border: 2px dashed white;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .upload-box:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        input[type="file"] {
+            display: none;
+        }
+        button {
+            padding: 8px 16px;
+            border: none;
+            background: #ff5722;
+            color: white;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #e64a19;
+        }
+        #result {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #4caf50;
+        }
     </style>
 </head>
 <body>
-
-    <h1>Activity Recognition</h1>
-    <div class="container">
-        <h3>Predicted Activity:</h3>
-        <p id="result"></p>
-        <div class="upload-box" onclick="document.getElementById('fileInput').click()">Drag & Drop CSV</div>
-        <input type="file" id="fileInput" style="display: none;" accept=".csv">
+    <div class="title">Vigilante</div>
+    <div class="watch-container">
+        <h1>Activity Recognition</h1>
+        <p id="result">Waiting...</p>
+        <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+            Upload CSV
+        </div>
+        <input type="file" id="fileInput" accept=".csv">
         <button onclick="uploadFile()">Upload</button>
     </div>
 
@@ -35,13 +105,15 @@
             let response = await fetch('/predict', { method: "POST", body: formData });
             let data = await response.json();
             
+            let resultElement = document.getElementById("result");
             if (data.prediction) {
-                document.getElementById("result").innerText = data.prediction;
+                resultElement.innerText = data.prediction;
+                resultElement.style.color = "#4caf50";
             } else {
-                document.getElementById("result").innerText = "Error processing file!";
+                resultElement.innerText = "Error!";
+                resultElement.style.color = "#ff0000";
             }
         }
     </script>
-
 </body>
 </html>
