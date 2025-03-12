@@ -52,7 +52,9 @@ pip install -r requirements.txt
 To train and test the model, download the datasets:  
 
 - **📂 Training Set:** [Download here](https://drive.google.com/drive/folders/1zgQ8bCxi7Vu5CAe5nLPFCIIYGHEF8mKz?usp=drive_link)  
-- **📂 Testing Set:** [Download here](https://drive.google.com/drive/folders/1GNyrwcUovqKaJI0rAvbtFfeQXYgGqHde?usp=drive_link)  
+- **📂 FineTuningSet Set:** [Download here](https://drive.google.com/drive/folders/1GNyrwcUovqKaJI0rAvbtFfeQXYgGqHde?usp=drive_link)
+- **📂 Testing Set 1:** [Download here](https://drive.google.com/drive/folders/1hZ8RR2KjFH4KX8uYf1t2PjvqAdR3GJlV?usp=drive_link)  
+- **📂 Testing Set 2:** [Download here](https://drive.google.com/drive/folders/1lPyBJC4f9h0F4TE0DBHcbe2zEsrn9fxO?usp=drive_link)  
 
 After downloading, place the datasets in the appropriate directories:  
 
