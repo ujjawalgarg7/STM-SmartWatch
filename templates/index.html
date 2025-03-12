@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity Recognition</title>
+    <title>Vigilante - Smartwatch UI</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-        
+
         body {
             display: flex;
             flex-direction: column;
@@ -16,82 +16,107 @@
             background: #000;
             color: white;
             margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        .title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #00eaff;
-            text-shadow: 0 0 10px rgba(0, 234, 255, 0.8);
         }
         .watch-container {
-            width: 300px;
-            height: 300px;
+            width: 350px;
+            height: 350px;
             background: radial-gradient(circle, #333, #000);
             border-radius: 50%;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 20px;
-            border: 5px solid #fff;
+            border: 6px solid #fff;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+            position: relative;
         }
         h1 {
-            font-size: 18px;
-            margin-bottom: 10px;
+            font-size: 22px;
+            color: #00eaff;
+            text-shadow: 0 0 10px rgba(0, 234, 255, 0.8);
+            margin-bottom: 15px;
         }
+        p {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        #activity {
+            color: #ffeb3b;
+            text-shadow: 0 0 5px rgba(255, 235, 59, 0.8);
+        }
+        #steps {
+            color: #4caf50;
+            text-shadow: 0 0 5px rgba(76, 175, 80, 0.8);
+        }
+        #temp {
+            color: #ff5722;
+            text-shadow: 0 0 5px rgba(255, 87, 34, 0.8);
+        }
+        /* Upload button styling */
         .upload-box {
-            padding: 10px;
+            padding: 12px 20px;
             border: 2px dashed white;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            margin-bottom: 10px;
+            margin-top: 20px;
             transition: all 0.3s ease;
-            font-size: 14px;
+            font-size: 16px;
+            width: 250px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
         }
         .upload-box:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.3);
         }
         input[type="file"] {
             display: none;
         }
-        button {
-            padding: 8px 16px;
+        /* Styled Upload Button */
+        .upload-btn {
+            padding: 12px 25px;
             border: none;
-            background: #ff5722;
+            background: linear-gradient(135deg, #ff9800, #ff5722);
             color: white;
-            font-size: 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        button:hover {
-            background: #e64a19;
-        }
-        #result {
             font-size: 16px;
             font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
             margin-top: 10px;
-            color: #4caf50;
+            box-shadow: 0 5px 15px rgba(255, 87, 34, 0.5);
+        }
+        .upload-btn:hover {
+            background: linear-gradient(135deg, #ff5722, #d84315);
+            transform: scale(1.05);
+        }
+        /* Emoji animations */
+        .emoji {
+            font-size: 24px;
+            margin-left: 5px;
+            animation: floatEmoji 1.5s infinite alternate;
+        }
+        @keyframes floatEmoji {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-5px); }
         }
     </style>
 </head>
 <body>
-    <div class="title">Vigilante</div>
+    <h1>Vigilante ⌚</h1>
     <div class="watch-container">
-        <h1>Activity Recognition</h1>
-        <p id="result">Waiting...</p>
-        <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-            Upload CSV
-        </div>
-        <input type="file" id="fileInput" accept=".csv">
-        <button onclick="uploadFile()">Upload</button>
+        <p id="activity">Activity: Waiting... ⚡</p>
+        <p id="steps">Steps: 0 🚶</p>
+        <p id="temp">Temp: N/A 🌡️</p>
     </div>
+
+    <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+        📂 Upload CSV
+    </div>
+    <input type="file" id="fileInput" accept=".csv">
+    <button class="upload-btn" onclick="uploadFile()">🚀 Upload</button>
 
     <script>
         async function uploadFile() {
@@ -104,15 +129,10 @@
 
             let response = await fetch('/predict', { method: "POST", body: formData });
             let data = await response.json();
-            
-            let resultElement = document.getElementById("result");
-            if (data.prediction) {
-                resultElement.innerText = data.prediction;
-                resultElement.style.color = "#4caf50";
-            } else {
-                resultElement.innerText = "Error!";
-                resultElement.style.color = "#ff0000";
-            }
+
+            document.getElementById("activity").innerHTML = `Activity: ${data.activity} ⚡`;
+            document.getElementById("steps").innerHTML = `Steps: ${data.steps} 🚶`;
+            document.getElementById("temp").innerHTML = `Temp: ${data.temp} 🌡️`;
         }
     </script>
 </body>

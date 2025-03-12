@@ -6,6 +6,8 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import StandardScaler
 from collections import Counter
 from mail import sendMail
+from scipy.signal import find_peaks, butter, filtfilt
+
 app = Flask(__name__)
 
 # Define LSTM model (must match the trained model's structure)
@@ -22,40 +24,35 @@ class ActivityLSTM(torch.nn.Module):
         return out
 
 # Model parameters (must match training setup)
-input_size = 15  # Update if different
+input_size = 15  
 hidden_size = 64
-num_classes = 5  # Update if different
+num_classes = 5  
 
 # Load trained model
 model = ActivityLSTM(input_size, hidden_size, num_classes)
 model.load_state_dict(torch.load('activity_recognition_lstm_finetuned.pth'))
-model.eval()  # Set to evaluation mode
+model.eval()  
 
 # Label mapping
 label_map = {0: 'walking', 1: 'running', 2: 'falling_while_walking', 3: 'falling_while_running', 4: 'gesture'}
 
-def predict_activity(file):
-    df = pd.read_csv(file)
-
-    # Select required columns (exclude time column)
+def predict_activity(df):
+    """Predict activity from sensor data"""
     feature_columns = [col for col in df.columns if col not in ['Time [s]']]
     df = df[feature_columns].dropna()
 
-    # Standardize data
     scaler = StandardScaler()
     df_scaled = scaler.fit_transform(df.values.astype(np.float32))
 
-    # Prepare input sequences
     time_steps = 50
     X = [df_scaled[i:i+time_steps] for i in range(len(df_scaled) - time_steps)]
+    if len(X) == 0:
+        return []
+
     X = torch.tensor(np.array(X), dtype=torch.float32)
-
-    # Create DataLoader
-    batch_size = 32
     dataset = TensorDataset(X)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    data_loader = DataLoader(dataset, batch_size=32, shuffle=False)
 
-    # Make predictions
     predictions = []
     with torch.no_grad():
         for batch in data_loader:
@@ -64,6 +61,28 @@ def predict_activity(file):
             predictions.extend(predicted.numpy())
 
     return [label_map[p] for p in predictions]
+
+def calculate_steps(df):
+    """Detect steps using accelerometer magnitude peaks"""
+    step_columns = ["lsm6dsv16x_acc_x [g]", "lsm6dsv16x_acc_y [g]", "lsm6dsv16x_acc_z [g]"]
+    if not all(col in df.columns for col in step_columns):
+        return "N/A (Missing Data)"
+
+    acc_x, acc_y, acc_z = df[step_columns].values.T
+    acc_magnitude = np.sqrt(acc_x**2 + acc_y**2 + acc_z**2)
+    acc_magnitude -= np.mean(acc_magnitude)
+
+    def low_pass_filter(data, cutoff_freq, sample_rate, order=4):
+        nyquist_freq = 0.5 * sample_rate
+        normal_cutoff = cutoff_freq / nyquist_freq
+        b, a = butter(order, normal_cutoff, btype='low', analog=False)
+        return filtfilt(b, a, data)
+
+    sample_rate, cutoff_freq = 50, 2.0
+    acc_filtered = low_pass_filter(acc_magnitude, cutoff_freq, sample_rate)
+    peaks, _ = find_peaks(acc_filtered, height=0.3, distance=25)
+
+    return len(peaks)
 
 @app.route('/')
 def index():
@@ -78,36 +97,57 @@ def predict():
     if file.filename == '':
         return jsonify({'error': 'No file selected'})
 
-    # Make predictions
-    predictions = predict_activity(file)
+    try:
+        file.seek(0)
+        if file.read(1) == '':
+            return jsonify({'error': 'Uploaded file is empty'})
+        
+        file.seek(0)
+        df = pd.read_csv(file, encoding='utf-8')
 
-    # Find the most frequent prediction
-    if predictions:
-        most_common_prediction = Counter(predictions).most_common(1)[0][0]
+    except pd.errors.EmptyDataError:
+        return jsonify({'error': 'Uploaded file is empty or corrupt'})
+    except pd.errors.ParserError:
+        return jsonify({'error': 'Error parsing CSV file. Check format'})
+    except Exception as e:
+        return jsonify({'error': f'Unexpected error: {str(e)}'})
 
-        # Call sendMail if the prediction is 'gesture'
-        if most_common_prediction == 'gesture':
+    # Make activity predictions
+    predictions = predict_activity(df)
+    most_common_prediction = Counter(predictions).most_common(1)[0][0] if predictions else "Unknown"
+
+    # Compute step count
+    steps = calculate_steps(df) if not df.empty else "N/A"
+
+    # Get temperature data
+    temp_column = "stts22h_temp [°C]"
+    temp_value = df[temp_column].iloc[0] if temp_column in df.columns and not df.empty else "N/A"
+
+    # Trigger emergency alerts
+    if most_common_prediction == 'gesture':
             try:
                 sendMail('ujjawalgarg7@gmail.com','GESTURE')
                 print("Email sent because gesture was detected")
             except Exception as e:
                 print(f"Error sending email: {e}")
-        elif most_common_prediction == 'falling_while_walking':
+    elif most_common_prediction == 'falling_while_walking':
             try:
                 sendMail('ujjawalgarg7@gmail.com','FALLEN')
                 print("Email sent because gesture was detected")
             except Exception as e:
                 print(f"Error sending email: {e}")
-        elif most_common_prediction == 'falling_while_walking':
+    elif most_common_prediction == 'falling_while_running':
             try:
                 sendMail('ujjawalgarg7@gmail.com','FALLEN')
                 print("Email sent because gesture was detected")
             except Exception as e:
                 print(f"Error sending email: {e}")
 
-        return jsonify({'prediction': most_common_prediction})
-    else:
-        return jsonify({'prediction': "No prediction available"})
+    return jsonify({
+        'activity': most_common_prediction,
+        'steps': steps,
+        'temp': temp_value
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
